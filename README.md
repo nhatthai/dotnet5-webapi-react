@@ -1,6 +1,6 @@
-# .NET5 WebAPI react
+# .NET5 WebAPI and React
     Frontend React and Web API using .NET 5
-    Create example: Learn React
+    Create example: Learn React, Hooks and RxJs
 
 ## React
 + Run development
@@ -31,3 +31,7 @@
     ```
     https://localhost:44374/swagger/index.html
     ```
+
+## Reference
++ [Fetch data in React](https://www.freecodecamp.org/news/fetch-data-react/)
++ [Fetch data from an API](https://designcode.io/react-hooks-handbook-fetch-data-from-an-api)
