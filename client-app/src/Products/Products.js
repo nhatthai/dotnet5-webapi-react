@@ -9,7 +9,7 @@ function Products({ match }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('https://localhost:44374/api/product111')
+        fetch('https://localhost:44374/api/product')
             .then((response) => {
                 if (response.ok) {
                     return response.json();
@@ -68,7 +68,7 @@ function Products({ match }) {
                     </tr>
                     }
 
-                    { !error && products &&
+                    { !error && products && products.length === 0 &&
                     <tr>
                         <td colSpan="5" className="text-center">
                             <div className="p-2">No products available</div>
