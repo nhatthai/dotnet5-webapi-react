@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Table } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Button, Table } from 'react-bootstrap';
 
-function Products({ match }) {
-    const { path } = match;
+function Products() {
     const [products, setProducts] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const baseUrl = 'https://localhost:44374';
 
     useEffect(() => {
-        fetch('https://localhost:44374/api/product')
+        fetch(baseUrl + '/api/product')
             .then((response) => {
                 if (response.ok) {
                     return response.json();
@@ -27,10 +26,31 @@ function Products({ match }) {
             });
     }, []);
 
+    function deleteProduct(productId) {
+        return fetch(baseUrl + '/api/product/' + productId, { method: 'DELETE' })
+            .then((response) => {
+                if (response.ok) {
+                    setProducts(products => products.filter(x => x.productId !== productId));
+                }
+                return response;
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
+    function updateProduct(productId) {
+
+    }
+
+    function createProduct() {
+
+    }
+
     return (
-        <div>
+        <div className="padding-table">
             <h1>Product </h1>
-            <Link to={`${path}/add`} className="btn btn-sm btn-success mb-2">Add Product</Link>
+            <Button onClick={() => createProduct()} className="btn btn-sm btn-success mb-2">Add Product</Button>
             <Table>
                 <thead>
                     <tr>
@@ -39,6 +59,7 @@ function Products({ match }) {
                         <th>Code</th>
                         <th>Price</th>
                         <th>Quantity</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,6 +70,11 @@ function Products({ match }) {
                             <td>{product.code}</td>
                             <td>{product.price}</td>
                             <td>{product.quantity}</td>
+                            <td>
+                                <Button className="btn btn-sm btn-primary mb-2" onClick={() => updateProduct(product.productId)}>Update</Button>
+                                &nbsp;&nbsp;&nbsp;
+                                <Button className="btn btn-sm btn-danger mb-2" onClick={() => deleteProduct(product.productId)}>Delete</Button>
+                            </td>
                         </tr>
                     ))}
 
@@ -68,15 +94,13 @@ function Products({ match }) {
                     </tr>
                     }
 
-                    { !error && products && products.length === 0 &&
+                    { !loading && !error && products && products.length === 0 &&
                     <tr>
                         <td colSpan="5" className="text-center">
                             <div className="p-2">No products available</div>
                         </td>
                     </tr>
                     }
-
-
                 </tbody>
             </Table>
         </div>
