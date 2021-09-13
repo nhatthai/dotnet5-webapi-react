@@ -27,30 +27,31 @@ namespace Net5CoreWebAPI.Controllers
             try
             {
                 var results = await _productService.GetProductsAsync();
-                var enumerable = results.ToList();
-                var products = enumerable.Skip(requestModel.PageIndex * requestModel.PageSize)
+                var products = results.Skip(requestModel.PageIndex * requestModel.PageSize)
                     .Take(requestModel.PageSize)
                     .ToList();
 
                 var productsResponse = new ResponseModel
                 {
-                    total = enumerable.Count,
+                    total = results.Count,
                     results = products
                 };
 
                 return Ok(productsResponse);
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                _logger.LogError(e.Message);
-                return BadRequest();
+                _logger.LogError(
+                    $"Request is failed {{pageIndex}} {{pageSize}}", 
+                    requestModel.PageIndex, requestModel.PageSize, exception);
+                return BadRequest("Request is failed");
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetByIdAsync(int id)
+        [HttpGet("{productId}")]
+        public async Task<ActionResult<Product>> GetByIdAsync(int productId)
         {
-            var product = await _productService.GetProductAsync(id);
+            var product = await _productService.GetProductAsync(productId);
 
             if (product == null)
             {
@@ -61,11 +62,11 @@ namespace Net5CoreWebAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Product> Create(Product product)
+        public async Task<ActionResult<Product>> Create(Product product)
         {
             try
             {
-                var objProduct = _productService.Create(product);
+                var objProduct = await _productService.CreateAsync(product);
                 product.ProductId = objProduct.ProductId;
                 product.DateCreated = DateTime.Now;
                 return Ok(product);
@@ -77,33 +78,40 @@ namespace Net5CoreWebAPI.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public ActionResult<Product> Update(Product product)
+        [HttpPut("{productId}")]
+        public async Task<ActionResult<Product>> Update(int productId, Product product)
         {
             try
             {
-                var updatedProduct = _productService.Update(product);
+                var updatedProduct = await _productService.UpdateAsync(product);
                 return Ok(updatedProduct);
             }
-            catch(Exception ex)
+            catch(Exception exception)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(
+                   $"Product doesn't update {{productId}} {{productName}}",
+                   product.ProductId, product.ProductName, exception);
                 return BadRequest();
             }
         }
 
-        [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        [HttpDelete("{productId}")]
+        public async Task<ActionResult> DeleteAsync(int productId)
         {
             try
             {
-                _logger.LogInformation("Delete", id);
-                _productService.Delete(id);
-                return Ok();
+                _logger.LogInformation("Delete", productId);
+                var isDeleted = await _productService.DeleteAsync(productId);
+                
+                if (isDeleted)
+                    return Ok();
+
+                return BadRequest();
             }
-            catch(Exception ex)
+            catch(Exception exception)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(
+                   $"Product doesn't delete {{productId}}", productId,  exception);
                 return BadRequest();
             }
         }

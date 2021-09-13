@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Net5CoreWebAPI.Models;
 
 namespace Net5CoreWebAPI.Services
@@ -9,10 +10,11 @@ namespace Net5CoreWebAPI.Services
     public class ProductService
     {
         private readonly ApplicationContext _context;
-
-        public ProductService(ApplicationContext context)
+        private readonly ILogger<ProductService> _logger;
+        public ProductService(ApplicationContext context, ILogger<ProductService> logger)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public Task<List<Product>> GetProductsAsync()
@@ -25,33 +27,58 @@ namespace Net5CoreWebAPI.Services
             return _context.Products.SingleOrDefaultAsync(p => p.ProductId == id);
         }
 
-        public Product Create(Product product)
+        public Task<Product> CreateAsync(Product product)
         {
-            _context.Products.AddAsync(product);
-            _context.SaveChangesAsync();
-            return product;
-        }
-
-        public bool Delete(int id)
-        {
-            var product = _context.Products.SingleAsync(item => item.ProductId == id).Result;
-
-            if (product == null)
+            try { 
+                _context.Products.AddAsync(product);
+                _context.SaveChangesAsync();
+                return Task.FromResult(product);
+            } 
+            catch(Exception exception)
             {
-                return false;
-            }
+                _logger.LogError("Couldn't delete item", exception);
 
-            _context.Products.Remove(product);
-            _context.SaveChangesAsync();
-            
-            return true;
+                throw new InvalidOperationException("Couldn't delete item in ProductService", exception);
+            }
         }
 
-        public Product Update(Product product)
+        public async Task<bool> DeleteAsync(int id)
         {
-            _context.Products.Update(product);
-            _context.SaveChangesAsync();
-            return product;
+            try
+            {
+                var product = _context.Products.SingleOrDefaultAsync(item => item.ProductId == id).Result;
+
+                if (product == null)
+                {
+                    return false;
+                }
+
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError("Couldn't delete item", exception);
+
+                throw new InvalidOperationException("Couldn't delete item in ProductService", exception);
+            }
+        }
+
+        public Task<Product> UpdateAsync(Product product)
+        {
+            try { 
+                _context.Products.Update(product);
+                _context.SaveChangesAsync();
+                return Task.FromResult(product);
+            } 
+            catch(Exception exception)
+            {
+                _logger.LogError("Couldn't delete item", exception);
+
+                throw new InvalidOperationException("Couldn't delete item in ProductService", exception);
+            }
         }
     }
 }
