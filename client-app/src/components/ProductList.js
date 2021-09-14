@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
-function Products() {
+function ProductList({ match }) {
+    const { path } = match;
     const [products, setProducts] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    const baseUrl = 'https://localhost:44374';
+    const baseUrl = 'http://localhost:49764';
 
     useEffect(() => {
         fetch(baseUrl + '/api/product')
@@ -39,18 +41,10 @@ function Products() {
             });
     }
 
-    function updateProduct(productId) {
-
-    }
-
-    function createProduct() {
-
-    }
-
     return (
-        <div className="padding-table">
+        <div className="container">
             <h1>Product </h1>
-            <Button onClick={() => createProduct()} className="btn btn-sm btn-success mb-2">Add Product</Button>
+            <Link to={`${path}/add`} className="btn btn-sm btn-success mb-2">Add Product</Link>
             <Table>
                 <thead>
                     <tr>
@@ -71,8 +65,8 @@ function Products() {
                             <td>{product.price}</td>
                             <td>{product.quantity}</td>
                             <td>
-                                <Button className="btn btn-sm btn-primary mb-2" onClick={() => updateProduct(product.productId)}>Update</Button>
-                                &nbsp;&nbsp;&nbsp;
+                                <Link to={`${path}/edit/${product.productId}`} className="btn btn-sm btn-primary mb-2" >Update</Link>
+                                &nbsp;&nbsp;
                                 <Button className="btn btn-sm btn-danger mb-2" onClick={() => deleteProduct(product.productId)}>Delete</Button>
                             </td>
                         </tr>
@@ -80,7 +74,7 @@ function Products() {
 
                     { loading &&
                     <tr>
-                        <td colSpan="4" className="text-center">
+                        <td colSpan="6" className="text-center">
                             <div className="spinner-border spinner-border-lg align-center"></div>
                         </td>
                     </tr>
@@ -88,7 +82,7 @@ function Products() {
 
                     { error &&
                     <tr>
-                        <td colSpan="5" className="text-center">
+                        <td colSpan="6" className="text-center">
                             <div className="p-2">System failed</div>
                         </td>
                     </tr>
@@ -96,7 +90,7 @@ function Products() {
 
                     { !loading && !error && products && products.length === 0 &&
                     <tr>
-                        <td colSpan="5" className="text-center">
+                        <td colSpan="6" className="text-center">
                             <div className="p-2">No products available</div>
                         </td>
                     </tr>
@@ -107,4 +101,4 @@ function Products() {
     );
 }
 
-export { Products };
+export { ProductList };

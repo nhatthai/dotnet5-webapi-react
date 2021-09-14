@@ -1,9 +1,10 @@
 import React from 'react';
 import { Container, Nav, Navbar, NavLink} from 'react-bootstrap';
-import { HomePage } from '../HomePage';
-import { Products } from '../Products';
-import { NotFound } from '../NotFound';
-import { About } from '../About';
+import { HomePage } from './HomePage';
+import { ProductList } from './ProductList';
+import { AddProduct } from './AddProduct'
+import { NotFound } from './NotFound';
+import { About } from './About';
 import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
 
 function NavBar() {
@@ -28,19 +29,15 @@ function NavBar() {
             </Navbar>
 
             <Switch>
-                <Route exact path="/" component={HomePage}>
-                </Route>
-
-                <Route exact path="/products" component={Products}>
-                </Route>
-
-                <Route exact path="/about" component= {About}>
-                </Route>
-
+                <Route exact path="/" component={HomePage} />
+                <Route exact path="/products" component={ProductList} />
+                <Route exact path="/about" component= {About} />
+                <Route exact path="/products/add" component={AddProduct} />
+                <Route exact path="/products/edit/:id" component={AddProduct} />
                 <Route component={NotFound} />
             </Switch>
 
         </Router>
     );
 }
-export default NavBar;
+export { NavBar };
