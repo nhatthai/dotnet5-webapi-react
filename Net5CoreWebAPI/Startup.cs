@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Net5CoreWebAPI.Models;
 using Net5CoreWebAPI.Services;
 
 
@@ -87,10 +86,9 @@ namespace Net5CoreWebAPI
             {
                 context.Database.Migrate();
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                Console.WriteLine("Error: Migration Database");
-                Console.WriteLine(e);
+                throw new InvalidOperationException("Couldn't init data", exception);
             }
 
             new AppContextSeed().SeedAsync(context).Wait();

@@ -55,7 +55,7 @@ namespace Net5CoreWebAPI.Controllers
 
             if (product == null)
             {
-                return NotFound();
+                return Ok();
             }
 
             return Ok(product);
@@ -71,10 +71,10 @@ namespace Net5CoreWebAPI.Controllers
                 product.DateCreated = DateTime.Now;
                 return Ok(product);
             }
-            catch(Exception ex)
+            catch(Exception exception)
             {
-                _logger.LogError(ex.Message);
-                return BadRequest(ex);
+                _logger.LogError($"Product couldn't create {{productName}}", product.ProductName, exception);
+                return BadRequest("Request is failed");
             }
         }
 
@@ -89,9 +89,9 @@ namespace Net5CoreWebAPI.Controllers
             catch(Exception exception)
             {
                 _logger.LogError(
-                   $"Product doesn't update {{productId}} {{productName}}",
-                   product.ProductId, product.ProductName, exception);
-                return BadRequest();
+                    $"Product doesn't update {{productId}} {{productName}}",
+                    productId, product.ProductName, exception);
+                return BadRequest("Request is failed");
             }
         }
 
@@ -106,13 +106,12 @@ namespace Net5CoreWebAPI.Controllers
                 if (isDeleted)
                     return Ok();
 
-                return BadRequest();
+                return BadRequest("Request is failed.");
             }
             catch(Exception exception)
             {
-                _logger.LogError(
-                   $"Product doesn't delete {{productId}}", productId,  exception);
-                return BadRequest();
+                _logger.LogError($"Product couldn't delete {{productId}}", productId,  exception);
+                return BadRequest("Request is failed");
             }
         }
     }

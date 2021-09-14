@@ -46,7 +46,8 @@ namespace Net5CoreWebAPI.Services
         {
             try
             {
-                var product = _context.Products.SingleOrDefaultAsync(item => item.ProductId == id).Result;
+                var product = _context.Products.SingleOrDefaultAsync(
+                    item => item.ProductId == id).GetAwaiter().GetResult();
 
                 if (product == null)
                 {
