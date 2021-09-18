@@ -46,38 +46,27 @@ function AddProduct({ history, match }) {
     });
 
     function onSubmit(data) {
-        return isAddMode ? createProduct(data) : updateProduct(id, data);
+        return isAddMode ? createOrUpdateProduct("", data) : createOrUpdateProduct(id, data);
     }
 
-    function createProduct(data) {
-        data["dateCreated"] = new Date().toISOString();
-        var jsonData = JSON.stringify(data);
+    function createOrUpdateProduct(id, data) {
+        let method;
+        let historyPage;
 
-        return fetch(baseUrl + '/api/product/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body:jsonData
-            })
-            .then((response) => {
-                if (response.ok) {
-                    history.push('.');
-                }
-                return response;
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }
+        if (id !== "") {
+            data["productId"] = id;
+            method = 'PUT';
+            historyPage = '..';
+        } else {
+            method = 'POST';
+            historyPage = '.';
+        }
 
-    function updateProduct(id, data) {
-        data["productId"] = id;
         data["dateCreated"] = new Date().toISOString();
         var jsonData = JSON.stringify(data);
 
         return fetch(baseUrl + '/api/product/' + id, {
-                method: 'PUT',
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -85,14 +74,13 @@ function AddProduct({ history, match }) {
             })
             .then((response) => {
                 if (response.ok) {
-                    history.push('..');
+                    history.push(historyPage);
                 }
             })
             .catch((error) => {
                 console.error(error);
             });
     }
-
 
     return (
         <div class="container">
