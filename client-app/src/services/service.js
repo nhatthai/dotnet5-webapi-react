@@ -1,10 +1,10 @@
-import { fromFetch } from 'rxjs/fetch';
-
 const baseUrl = `http://localhost:49764`;
 
 export const productService = {
     getAll,
-    getProducts,
+    get,
+    create,
+    update,
     delete: _delete,
 };
 
@@ -16,6 +16,7 @@ export const productService = {
 //     }
 //  }
 
+
 function getAll() {
     return fetch(baseUrl + '/api/product')
         .then((response) => response.json())
@@ -24,10 +25,7 @@ function getAll() {
 
 // prefixed with underscored because delete is a reserved word in javascript
 function _delete(id) {
-    const requestOptions = {
-        method: 'DELETE'
-    };
-    return fetch(baseUrl + '/api/product/' + id, requestOptions)
+    return fetch(baseUrl + '/api/product/' + id, { method: 'DELETE' })
         .then((response) => {
             if (response.ok)
                 console.log(response);
@@ -38,13 +36,26 @@ function _delete(id) {
         });
 }
 
-function getProducts() {
-    return fromFetch(baseUrl + '/api/product');
+function get(id) {
+    return fetch(baseUrl + '/api/product/' + id, { method: 'GET'});
 }
-//         .pipe(
-//             switchMap((response) => handleResponse(response)),
-//             map((response) => response.results),
-//             catchError((error) => {
-//                 console.error(error);
-//                 return of({ error: true, message: error.message });
-//             }));
+
+function create(jsonData) {
+    return fetch(baseUrl + '/api/product/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body:jsonData
+    })
+}
+
+function update(id, jsonData) {
+    return fetch(baseUrl + '/api/product/' + id, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body:jsonData
+    })
+}

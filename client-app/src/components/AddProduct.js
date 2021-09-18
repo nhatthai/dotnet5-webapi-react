@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
+import { productService } from '../services/service';
 
 function AddProduct({ history, match }) {
     const { id } = match.params;
     const isAddMode = !id;
-    const baseUrl = 'http://localhost:49764';
 
     // form validation rules
     const validationSchema = Yup.object().shape({
@@ -24,51 +24,40 @@ function AddProduct({ history, match }) {
 
     useEffect(() => {
         if (!isAddMode) {
-            // get product and set form fields
-            return fetch(baseUrl + '/api/product/' + id, { method: 'GET' })
-                .then((response) => {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                })
-                .then((data) => {
-                    const fields = ['productName', 'code', 'price', 'quantity'];
-                    fields.forEach(field => setValue(field, data[field]));
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
+            return productService.get(id).then((response) => {
+                if (response.ok) {
+                    return response.json();
+                }
+            })
+            .then((data) => {
+                const fields = ['productName', 'code', 'price', 'quantity'];
+                fields.forEach(field => setValue(field, data[field]));
+            })
+            .catch((error) => {
+                console.error(error);
+            });
         }
     });
 
     function onSubmit(data) {
-        return isAddMode ? createOrUpdateProduct("", data) : createOrUpdateProduct(id, data);
+        return createOrUpdateProduct(data);
     }
 
-    function createOrUpdateProduct(id, data) {
-        let method;
+    function createOrUpdateProduct(data) {
         let historyPage;
+        data["dateCreated"] = new Date().toISOString();
 
-        if (id !== "") {
-            data["productId"] = id;
-            method = 'PUT';
-            historyPage = '..';
-        } else {
-            method = 'POST';
+        if (isAddMode) {
             historyPage = '.';
+        } else {
+            data["productId"] = id;
+            historyPage = '..';
         }
 
-        data["dateCreated"] = new Date().toISOString();
         var jsonData = JSON.stringify(data);
+        var fetchService = (isAddMode) ? productService.create(jsonData) : productService.update(id, jsonData)
 
-        return fetch(baseUrl + '/api/product/' + id, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body:jsonData
-            })
-            .then((response) => {
+        return fetchService.then((response) => {
                 if (response.ok) {
                     history.push(historyPage);
                 }
