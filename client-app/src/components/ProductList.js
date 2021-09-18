@@ -1,45 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import useFetchProducts from '../hooks/useFetchProducts';
 
 function ProductList({ match }) {
     const { path } = match;
-    const [products, setProducts] = useState([]);
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const baseUrl = 'http://localhost:49764';
-
-    useEffect(() => {
-        fetch(baseUrl + '/api/product')
-            .then((response) => {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw response;
-            })
-            .then((data) => {
-                setProducts(data.results)
-            })
-            .catch((error) => {
-                setError(error);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }, []);
-
-    function deleteProduct(productId) {
-        return fetch(baseUrl + '/api/product/' + productId, { method: 'DELETE' })
-            .then((response) => {
-                if (response.ok) {
-                    setProducts(products => products.filter(x => x.productId !== productId));
-                }
-                return response;
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }
+    const {products, loading, error, deleteProduct} = useFetchProducts();
 
     return (
         <div className="container">
@@ -65,13 +31,17 @@ function ProductList({ match }) {
                             <td>{product.price}</td>
                             <td>{product.quantity}</td>
                             <td>
-                                <Link to={`${path}/edit/${product.productId}`} className="btn btn-sm btn-primary mb-2" >Update</Link>
+                                <Link to={`${path}/edit/${product.productId}`}
+                                    className="btn btn-sm btn-primary mb-2" >Update</Link>
                                 &nbsp;&nbsp;
-                                <Button className="btn btn-sm btn-danger mb-2" onClick={() => deleteProduct(product.productId)}>Delete</Button>
+                                <Button className="btn btn-sm btn-danger mb-2"
+                                    onClick={() => deleteProduct(product.productId)}>Delete
+                                </Button>
                             </td>
                         </tr>
                     ))}
 
+                     {/* Loading  */}
                     { loading &&
                     <tr>
                         <td colSpan="6" className="text-center">
@@ -80,6 +50,7 @@ function ProductList({ match }) {
                     </tr>
                     }
 
+                    {/* Error  */}
                     { error &&
                     <tr>
                         <td colSpan="6" className="text-center">
@@ -88,6 +59,7 @@ function ProductList({ match }) {
                     </tr>
                     }
 
+                    {/* Empty  */}
                     { !loading && !error && products && products.length === 0 &&
                     <tr>
                         <td colSpan="6" className="text-center">

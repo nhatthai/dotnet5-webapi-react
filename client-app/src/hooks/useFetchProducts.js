@@ -38,5 +38,5 @@ export default function useFetchProducts() {
             });
     }
 
-    return { products, loading, error };
+    return { products, loading, error, deleteProduct };
 }
