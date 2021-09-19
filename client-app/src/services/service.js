@@ -9,10 +9,22 @@ export const productService = {
     delete: _delete
 };
 
+function fetchData(apiUrl, method, jsonData) {
+    return fetch(apiUrl, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body:jsonData
+    }).then((response) => {
+        if (response.ok) {
+            return response.json();
+        }
+    });
+}
+
 function getAll() {
-    return fetch(productAPI)
-        .then((response) => response.json())
-        .catch((apiError) => apiError);
+    return fetchData(productAPI, 'GET', null);
 }
 
 // prefixed with underscored because delete is a reserved word in javascript
@@ -21,43 +33,14 @@ function _delete(id) {
 }
 
 function get(id) {
-    return fetch(productAPI + id,
-        {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }).then((response) => {
-            if (response.ok) {
-                return response.json();
-            }
-        });
+    return fetchData(productAPI + id, 'GET', null);
 }
 
 function create(jsonData) {
-    return fetch(productAPI, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body:jsonData
-    }).then((response) => {
-        if (response.ok) {
-            return response.json();
-        }
-    });
+    return fetchData(productAPI, 'POST', jsonData);
+
 }
 
 function update(id, jsonData) {
-    return fetch(productAPI + id, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body:jsonData
-    }).then((response) => {
-        if (response.ok) {
-            return response.json();
-        }
-    });
+    return fetchData(productAPI + id, 'PUT', jsonData);
 }
