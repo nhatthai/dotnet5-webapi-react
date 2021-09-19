@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { productService } from '../services/service';
 
-export default function useFetchUpdateProduct(id, handleGetResponse, handleSubmitResponse, handleError) {
+export default function useFetchCreateOrUpdateProduct(id, handleGetResponse, handleSubmitResponse, handleError) {
     const isAddMode = !id;
 
     useEffect(() => {
