@@ -27,12 +27,12 @@ namespace Net5CoreWebAPI.Services
             return _context.Products.SingleOrDefaultAsync(p => p.ProductId == id);
         }
 
-        public Task<Product> CreateAsync(Product product)
+        public async Task<Product> CreateAsync(Product product)
         {
             try { 
-                _context.Products.AddAsync(product);
-                _context.SaveChangesAsync();
-                return Task.FromResult(product);
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
+                return product;
             } 
             catch(Exception exception)
             {
@@ -67,12 +67,12 @@ namespace Net5CoreWebAPI.Services
             }
         }
 
-        public Task<Product> UpdateAsync(Product product)
+        public async Task<Product> UpdateAsync(Product product)
         {
             try { 
                 _context.Products.Update(product);
-                _context.SaveChangesAsync();
-                return Task.FromResult(product);
+                await _context.SaveChangesAsync();
+                return product;
             } 
             catch(Exception exception)
             {
