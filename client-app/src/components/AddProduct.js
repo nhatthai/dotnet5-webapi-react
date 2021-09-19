@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-import { productService } from '../services/service';
+import useFetchCreateOrUpdateProduct from '../hooks/useFetchProduct';
 
 function AddProduct({ history, match }) {
     const { id } = match.params;
     const isAddMode = !id;
+    const { onSubmit } =
+        useFetchCreateOrUpdateProduct(id, handleGetProductResponse, handleSubmitResponse, handleError);
 
     // form validation rules
     const validationSchema = Yup.object().shape({
@@ -22,49 +24,17 @@ function AddProduct({ history, match }) {
         resolver: yupResolver(validationSchema)
     });
 
-    useEffect(() => {
-        if (!isAddMode) {
-            return productService.get(id).then((response) => {
-                if (response.ok) {
-                    return response.json();
-                }
-            })
-            .then((data) => {
-                const fields = ['productName', 'code', 'price', 'quantity'];
-                fields.forEach(field => setValue(field, data[field]));
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-        }
-    });
-
-    function onSubmit(data) {
-        return createOrUpdateProduct(data);
+    function handleGetProductResponse(data) {
+        const fields = ['productName', 'code', 'price', 'quantity'];
+        fields.forEach(field => setValue(field, data[field]));
     }
 
-    function createOrUpdateProduct(data) {
-        let historyPage;
-        data["dateCreated"] = new Date().toISOString();
+    function handleError(error) {
+        console.error(error);
+    }
 
-        if (isAddMode) {
-            historyPage = '.';
-        } else {
-            data["productId"] = id;
-            historyPage = '..';
-        }
-
-        var jsonData = JSON.stringify(data);
-        var fetchService = (isAddMode) ? productService.create(jsonData) : productService.update(id, jsonData)
-
-        return fetchService.then((response) => {
-                if (response.ok) {
-                    history.push(historyPage);
-                }
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+    function handleSubmitResponse(historyPage) {
+        history.push(historyPage);
     }
 
     return (

@@ -1,19 +1,13 @@
 import { useState, useEffect } from 'react';
+import { productService } from '../services/service';
 
 export default function useFetchProducts() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState([]);
-    const baseUrl = 'http://localhost:49764';
 
     useEffect(() => {
-        fetch(baseUrl + '/api/product')
-            .then((response) => {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw response;
-            })
+        productService.getAll()
             .then((data) => {
                 setProducts(data.results)
             })
@@ -26,7 +20,7 @@ export default function useFetchProducts() {
     }, []);
 
     function deleteProduct(productId) {
-        return fetch(baseUrl + '/api/product/' + productId, { method: 'DELETE' })
+        return productService.delete(productId)
             .then((response) => {
                 if (response.ok) {
                     setProducts(products => products.filter(x => x.productId !== productId));
