@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { productService } from '../services/service';
 
-export default function useFetchCreateOrUpdateProduct(id, handleGetResponse, handleSubmitResponse, handleError) {
+export default function useFetchCreateOrUpdateProduct(id, handleGetResponse, handleSubmitResponse, handleError, closeModal) {
     const isAddMode = !id;
 
     useEffect(() => {
@@ -20,11 +20,8 @@ export default function useFetchCreateOrUpdateProduct(id, handleGetResponse, han
         let historyPage;
         data["dateCreated"] = new Date().toISOString();
 
-        if (isAddMode) {
-            historyPage = '.';
-        } else {
+        if (!isAddMode) {
             data["productId"] = id;
-            historyPage = '..';
         }
 
         let jsonData = JSON.stringify(data);
@@ -33,6 +30,7 @@ export default function useFetchCreateOrUpdateProduct(id, handleGetResponse, han
         return promiseService
             .then(()=> {
                 handleSubmitResponse(historyPage);
+                closeModal();
             })
             .catch((error) => {
                 handleError(error);
